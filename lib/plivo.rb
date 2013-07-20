@@ -9,7 +9,7 @@ module Plivo
   end 
 
   class RestAPI
-      attr_accessor :auth_id, :auth_token, :url, :version, :api, :headers, :rest, :encoder
+      attr_accessor :auth_id, :auth_token, :url, :version, :api, :headers, :rest
 
       def initialize(auth_id, auth_token, url="https://api.plivo.com", version="v1")
           @auth_id = auth_id
@@ -19,7 +19,6 @@ module Plivo
           @api = @url + '/' + @version + '/Account/' + @auth_id
           @headers = {"User-Agent" => "RubyPlivo"}
           @rest = RestClient::Resource.new(@api, @auth_id, @auth_token)
-          @encoder = HTMLEntities.new :expanded
       end
 
       def hash_to_params(myhash)
@@ -27,7 +26,8 @@ module Plivo
       end
 
       def request(method, path, params=nil)
-          params.each{ |key,value| value.replace(encoder.encode(value, :decimal)) }
+          coder = HTMLEntities.new(:html4)
+          params.each{ |key,value| value.replace(coder.encode(value, :decimal)) }
           if method == "POST"
               if not params
                   params = {}
@@ -484,7 +484,6 @@ module Plivo
           @name = self.class.name.split('::')[1]
           @body = body
           @node = REXML::Element.new @name
-          @encoder = HTMLEntities.new :expanded
           attributes.each do |k, v|
               if self.class.valid_attributes.include?(k.to_s)
                   @node.attributes[k.to_s] = convert_value(v)
@@ -494,7 +493,8 @@ module Plivo
           end
           
           if @body
-              @node.text = @encoder.encode(@body, :decimal)
+              coder = HTMLEntities.new(:html4)
+              @node.text = coder.encode(@body, :decimal)
           end
 
           # Allow for nested "nestable" elements using a code block
