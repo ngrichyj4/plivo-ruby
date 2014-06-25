@@ -630,7 +630,7 @@ module Plivo
 
   class Wait < Element
     @nestables = []
-    @valid_attributes = ['length', 'silence', 'min_silence']
+    @valid_attributes = ['length', 'silence', 'min_silence', 'minSilence']
 
     def initialize(attributes={})
       super(nil, attributes)
